@@ -1,0 +1,84 @@
+# Publishes Vektor-Setup.exe, Vektor-Windows.zip and Vektor-macOS.zip to the release when a v* tag is pushed (e.g. git tag v2.0.0 && git push --tags).
+name: release
+# On main: build (checks everything compiles) + publishes the web version (GitHub Pages).
+# On a v* tag: build + release.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ['v*']
+permissions:
+  contents: write
+  actions: write
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mono C# compiler
+        run: sudo apt-get update -q && sudo apt-get install -y -q mono-mcs libmono-system-windows-forms4.0-cil
+      - name: Build
+        run: ./build-windows.sh
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # tag with a suffix (v2.23.0-beta): pre-release, not offered as an automatic update
+          PRE=""; case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease";; esac
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" $PRE --title "Vektor ${GITHUB_REF_NAME#v}" --notes "$(printf '%b' "Download **Vektor-Setup.exe** (or the zip) and run it: it installs Vektor if missing, otherwise it offers Repair / Update / Uninstall.\n\nNo install: web version at https://altklin.github.io/Vektor/ (installable from Edge or Chrome).\n\nOn Mac: download **Vektor-macOS.zip**, open it and drag **Vektor.app** into Applications. On first launch macOS blocks the app (it is not notarized by Apple): System Settings → Privacy & Security → “Open Anyway”. Or in Terminal: xattr -dr com.apple.quarantine /Applications/Vektor.app")"
+          gh release upload "$GITHUB_REF_NAME" dist/Vektor-Setup.exe dist/Vektor-Windows.zip --clobber
+          # update notice published as soon as the Windows installer is online (without waiting for the macOS runner, sometimes slow)
+          [ -n "$PRE" ] || gh workflow run release.yml --ref main -R "$GITHUB_REPOSITORY"
+  macos:
+    needs: windows
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build (universal arm64 + x86_64)
+        run: |
+          mkdir -p dist
+          VEKTOR_APP_DIR="$PWD/dist" ./macos/build.sh
+          lipo -info dist/Vektor.app/Contents/MacOS/Vektor
+          ditto -c -k --sequesterRsrc --keepParent dist/Vektor.app dist/Vektor-macOS.zip
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" dist/Vektor-macOS.zip --clobber
+      - name: Republish latest.json (web version / update notice)
+        if: startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run release.yml --ref main -R "$GITHUB_REPOSITORY"
+  web:
+    if: github.ref == 'refs/heads/main'
+    needs: windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the web version
+        run: python3 build.py --web
+      - name: latest.json (latest release, read by the app to offer the update)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '{tag_name, html_url, assets: [.assets[] | {name, browser_download_url}]}' > dist/web/latest.json || echo '{}' > dist/web/latest.json
+          cat dist/web/latest.json
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/web
+      - id: deploy
+        uses: actions/deploy-pages@v4

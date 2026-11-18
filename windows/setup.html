@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vektor — setup</title>
+<style>
+:root{--f:"Bahnschrift","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;--fc:"Bahnschrift Condensed","Bahnschrift","Arial Narrow",sans-serif;--mono:"Cascadia Mono",Consolas,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;font:14px/1.45 var(--f);-webkit-user-select:none;user-select:none;background:#131416}
+.path{-webkit-user-select:text;user-select:text}
+/* ── setup window ── */
+.win{--r:10px;position:fixed;inset:0;display:grid;grid-template-rows:1fr;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--wf,var(--f))}
+.tb{display:flex;align-items:center;justify-content:space-between;padding-left:14px;background:var(--tb);color:var(--mute);font:12px var(--f);user-select:none}
+.tb .wc{display:flex;height:100%}
+.tb .wc span{width:46px;display:grid;place-items:center;font-size:13px}
+.tb .wc span:last-child:hover{background:#c42b1c;color:#fff}
+.body{display:grid;grid-template-columns:var(--heroW,300px) 1fr;min-height:0}
+
+/* left column: identity */
+.hero{position:relative;overflow:hidden;background:var(--hero);color:var(--heroText,var(--text));padding:26px 26px 22px;display:flex;flex-direction:column;justify-content:space-between}
+.hero .mark{display:flex;align-items:center;gap:11px;position:relative;z-index:2}
+.hero .mark svg{width:34px;height:32px;fill:var(--accent)}
+.hero .mark b{font:700 25px/1 var(--fc);letter-spacing:.04em}
+.hero .tag{position:relative;z-index:2;max-width:24ch;color:var(--heroMute,var(--mute));font-size:13px}
+.hero .ver{position:relative;z-index:2;display:flex;gap:8px;align-items:center;font:12px var(--mono);color:var(--heroMute,var(--mute))}
+.hero .ver em{font-style:normal;padding:2px 7px;border-radius:var(--r);background:var(--accent);color:var(--accentInk)}
+.deco{position:absolute;inset:0;pointer-events:none}
+
+/* content */
+.main{display:grid;grid-template-rows:auto 1fr auto;min-width:0;background:var(--panel)}
+.steps{display:flex;gap:6px;padding:20px 28px 0;font-size:12px;color:var(--dim)}
+.steps li{list-style:none;display:flex;align-items:center;gap:7px}
+.steps li+li::before{content:"";width:22px;height:1px;background:var(--line2);margin-right:1px}
+.steps b{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border-radius:10px;border:1px solid var(--line2);font:600 11px var(--f);color:var(--mute)}
+.steps .on{color:var(--text)} .steps .on b{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}
+.steps .ok b{background:var(--line);border-color:var(--line);color:var(--text)}
+.content{padding:18px 28px 6px;overflow:auto;min-height:0}
+.content h2{margin:0 0 6px;font:600 23px/1.15 var(--wf,var(--f));letter-spacing:-.005em}
+.content p{margin:0 0 14px;color:var(--mute);max-width:52ch}
+.path{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2);font:12.5px var(--mono);color:var(--text);margin-bottom:14px;overflow:hidden}
+.path span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.path a{font:12px var(--f);color:var(--accentText);text-decoration:none;flex:none;cursor:pointer}
+.opt{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.opt:last-of-type{border-bottom:1px solid var(--line)}
+.opt div{flex:1}
+.opt div small{display:block;color:var(--dim);font-size:12px}
+.sw{appearance:none;flex:none;width:38px;height:22px;border-radius:11px;background:var(--line2);position:relative;cursor:pointer;transition:background .15s;margin:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw:checked{background:var(--accent)} .sw:checked::after{transform:translateX(16px);background:var(--accentInk)}
+.sw:focus-visible{outline:2px solid var(--accentText);outline-offset:2px}
+
+.choices{display:grid;gap:8px}
+.choice{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:12px;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2);color:var(--text);font:inherit;cursor:pointer}
+.choice:hover{border-color:var(--hover)}
+.choice:focus-visible{outline:2px solid var(--accentText);outline-offset:2px}
+.choice .ic{width:36px;height:36px;border-radius:var(--r);display:grid;place-items:center;background:var(--line);color:var(--text)}
+.choice .ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.choice b{display:block;font-weight:600}
+.choice small{color:var(--dim);font-size:12px}
+.choice.pri{border-color:var(--accent)} .choice.pri .ic{background:var(--accent);color:var(--accentInk)}
+.choice .arr{color:var(--dim)}
+.choice.danger:hover{border-color:var(--bad)} .choice.danger .ic{color:var(--bad)}
+
+.prog{height:var(--progH,8px);border-radius:var(--progR,4px);background:var(--line);overflow:hidden;margin:6px 0 10px}
+.prog i{display:block;height:100%;width:0;background:var(--accent);border-radius:inherit;transition:width .25s linear}
+.pct{display:flex;justify-content:space-between;font:12px var(--mono);color:var(--mute)}
+.log{margin:14px 0 0;padding:0;list-style:none;font:12.5px/1.9 var(--mono);color:var(--dim)}
+.log li{display:flex;gap:9px;align-items:center}
+.log li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--line2);flex:none}
+.log li.ok{color:var(--mute)} .log li.ok::before{background:var(--ok)}
+.log li.run{color:var(--text)} .log li.run::before{background:var(--accent);animation:pulse .8s ease-in-out infinite alternate}
+@keyframes pulse{to{opacity:.3}}
+.done{display:flex;gap:14px;align-items:flex-start}
+.done .big{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accentInk)}
+.done .big svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.done .big.mute{background:var(--line);color:var(--text)}
+.news{margin:4px 0 0;padding:0 0 0 18px;color:var(--mute);font-size:13px}
+.news li{margin:2px 0}
+
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 28px;border-top:1px solid var(--line);background:var(--foot,var(--panel))}
+.foot .note{font-size:12px;color:var(--dim)}
+.foot .btns{display:flex;gap:8px;margin-left:auto}
+.b{height:36px;padding:0 16px;border-radius:var(--r);border:1px solid var(--line2);background:transparent;color:var(--text);font:600 13.5px var(--wf,var(--f));cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.b:hover{border-color:var(--hover)}
+.b.pri{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}
+.b.pri:hover{background:var(--accentHi);border-color:var(--accentHi)}
+.b.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+.b:disabled{opacity:.45;cursor:default}
+.b:focus-visible{outline:2px solid var(--accentText);outline-offset:2px}
+.b>span{display:inline-block}
+
+
+.warn{margin:10px 0 0;padding:9px 12px;border-left:3px solid #ffcf33;background:var(--panel2);color:var(--mute);font-size:12.5px;max-width:52ch}
+.warn ul{margin:4px 0 0;padding-left:18px}
+.warn.err{border-left-color:var(--bad)} .warn.err b{color:var(--text)}
+.hint{font-size:12px;color:var(--dim);margin-top:4px}
+/* ════════ Themes ════════ */
+/* Workshop: the app's default theme, understated */
+.win[data-t=workshop]{--bg:#131416;--frame:#2a2c31;--tb:#0e0f11;--hero:#0e0f11;--panel:#17181b;--panel2:#1d1f23;--line:#292b30;--line2:#3a3d44;--hover:#5a5e67;
+  --text:#ecebe7;--mute:#a3a09a;--dim:#77756f;--accent:#ff6a1a;--accentHi:#ff8443;--accentInk:#1a0d05;--accentText:#ff8a4d;--ok:#5ad08a;--bad:#e5484d}
+.win[data-t=workshop] .deco{background:
+  radial-gradient(circle at 115% 92%,transparent 0 120px,rgba(255,106,26,.9) 120px 122px,transparent 122px 150px,rgba(255,106,26,.35) 150px 151px,transparent 151px 180px,rgba(255,106,26,.15) 180px 181px,transparent 181px)}
+
+/* Red grid: everything slanted, P1 P2 P3 steps */
+.win[data-t^=grid]{--r:0px;--wf:var(--fc);--bg:#0b0b0c;--frame:#222;--tb:#070708;--hero:#0b0b0c;--panel:#121214;--panel2:#1a1a1d;--line:#26262a;--line2:#3a3a40;--hover:#6a6a70;
+  --text:#f5f5f2;--mute:#a5a5a0;--dim:#727270;--accent:#e8202a;--accentHi:#ff3a43;--accentInk:#fff;--accentText:#ff5a61;--ok:#f5f5f2;--bad:#e8202a;--progH:10px;--progR:0}
+.win[data-t^=grid] .b,.win[data-t^=grid] .steps b,.win[data-t^=grid] .hero .ver em{transform:skewX(-14deg)}
+.win[data-t^=grid] .b>span,.win[data-t^=grid] .steps b>span{transform:skewX(14deg)}
+.win[data-t^=grid] .b{text-transform:uppercase;font-style:italic;letter-spacing:.04em;font-size:14px}
+.win[data-t^=grid] .content h2{font-style:italic;text-transform:uppercase;font-size:27px;letter-spacing:.01em}
+.win[data-t^=grid] .steps{text-transform:uppercase;font:italic 600 12.5px var(--fc);letter-spacing:.05em}
+.win[data-t^=grid] .steps b::before{content:"P"}
+.win[data-t^=grid] .steps b{min-width:30px;white-space:nowrap;display:inline-flex;justify-content:center;align-items:center}
+.win[data-t^=grid] .steps b>span{display:inline}
+.win[data-t^=grid] .steps b::before{transform:skewX(14deg)}
+.win[data-t^=grid] .hero .tag,.win[data-t^=grid] .hero .ver span{background:var(--bg);box-shadow:0 0 0 5px var(--bg);width:fit-content}
+.win[data-t^=grid] .steps .on b{background:var(--accent)}
+.win[data-t^=grid] .steps .ok b{background:var(--text);color:var(--bg);border-color:var(--text)}
+.win[data-t^=grid] .steps li+li::before{width:16px;height:3px;transform:skewX(-14deg);background:var(--line2)}
+.win[data-t^=grid] .prog{background:repeating-linear-gradient(90deg,var(--line) 0 10px,transparent 10px 13px)}
+.win[data-t^=grid] .prog i{-webkit-mask:repeating-linear-gradient(90deg,#000 0 10px,transparent 10px 13px);mask:repeating-linear-gradient(90deg,#000 0 10px,transparent 10px 13px)}
+.win[data-t^=grid] .choice{border-width:0 0 0 4px;border-color:var(--line2)}
+.win[data-t^=grid] .choice.pri{border-color:var(--accent)}
+.win[data-t^=grid] .choice b{text-transform:uppercase;font-style:italic;letter-spacing:.03em;font-family:var(--fc);font-size:15px}
+.win[data-t^=grid] .hero .mark b{font-style:italic;font-size:30px}
+.win[data-t^=grid] .done .big,.win[data-t^=grid] .sw,.win[data-t^=grid] .sw::after{border-radius:0}
+.win[data-t^=grid] .deco{background:
+  linear-gradient(104deg,transparent 0 52%,var(--accent) 52% 60%,transparent 60% 63%,var(--accent) 63% 66%,transparent 66%),
+  repeating-linear-gradient(0deg,transparent 0 46px,rgba(255,255,255,.05) 46px 48px)}
+.win[data-t^=grid] .deco::after{content:"";position:absolute;left:26px;right:26px;top:74px;height:16px;
+  background:conic-gradient(var(--text) 25%,transparent 0 50%,var(--text) 0 75%,transparent 0) 0 0/16px 16px;opacity:.9}
+/* Blue grid: midnight blue, blue and white stripes */
+.win[data-t=grid-blue]{--bg:#070c17;--frame:#16223a;--tb:#050913;--hero:#070c17;--panel:#0c1424;--panel2:#121d33;--line:#1c2a45;--line2:#2c3f63;--hover:#4a6496;
+  --text:#eef3fb;--mute:#9fb0cc;--dim:#6b7d9c;--accent:#1e66ff;--accentHi:#4a86ff;--accentInk:#fff;--accentText:#6e9dff;--ok:#eef3fb;--bad:#ff4b4b}
+.win[data-t=grid-blue] .deco{background:
+  linear-gradient(104deg,transparent 0 50%,var(--accent) 50% 58%,transparent 58% 60%,#eef3fb 60% 61.5%,transparent 61.5% 63.5%,var(--accent) 63.5% 67%,transparent 67%),
+  repeating-linear-gradient(0deg,transparent 0 46px,rgba(110,157,255,.07) 46px 48px)}
+
+/* Night garage: perspective floor, cards on top */
+.win[data-t=garage]{--r:14px;--bg:#0b1222;--frame:#1d2a45;--tb:#08101e;--hero:linear-gradient(180deg,#0e1730 0,#0a1122 100%);--panel:#0d1528;--panel2:#132039;--line:#1e2d4c;--line2:#2c3e63;--hover:#4c6aa3;
+  --text:#e9eefb;--mute:#9caac6;--dim:#6c7b99;--accent:#3d8bff;--accentHi:#64a2ff;--accentInk:#fff;--accentText:#76abff;--ok:#43d39e;--bad:#ff5c6a;--progR:99px;--progH:6px}
+.win[data-t=garage] .main{background:transparent;padding:14px 14px 14px 0}
+.win[data-t=garage] .main>*{background:var(--panel)}
+.win[data-t=garage] .steps{border-radius:var(--r) var(--r) 0 0;border:1px solid var(--line);border-bottom:0}
+.win[data-t=garage] .content{border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.win[data-t=garage] .foot{border-radius:0 0 var(--r) var(--r);border:1px solid var(--line);background:var(--panel2)}
+.win[data-t=garage] .body{background:var(--hero)}
+.win[data-t=garage] .hero{background:transparent}
+.win[data-t=garage] .b{border-radius:99px}
+.win[data-t=garage] .deco{perspective:340px}
+.win[data-t=garage] .deco::before{content:"";position:absolute;left:-60%;right:-60%;bottom:-10px;height:62%;transform:rotateX(62deg);transform-origin:50% 100%;
+  background:linear-gradient(90deg,rgba(61,139,255,.35) 1px,transparent 1px) 0 0/34px 34px,linear-gradient(0deg,rgba(61,139,255,.35) 1px,transparent 1px) 0 0/34px 34px;
+  -webkit-mask:linear-gradient(0deg,#000 10%,transparent 90%);mask:linear-gradient(0deg,#000 10%,transparent 90%)}
+.win[data-t=garage] .deco::after{content:"";position:absolute;left:50%;top:30%;width:260px;height:160px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(61,139,255,.28),transparent)}
+
+.deco .roundel{display:none}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="win" id="win" data-t="workshop">
+  <div class="body">
+    <div class="hero">
+      <div class="deco"></div>
+      <div class="mark"><svg viewBox="32 28 204 192" aria-hidden="true"><path d="M58 104 L106 104 L128 156.38 L150 104 L198 104 L152 216 L104 216 Z"/><path d="M36 58 L174 58 L148 32 L182 32 L232 84 L36 84 Z"/></svg><b>VEKTOR</b></div>
+      <div>
+        <p class="tag" data-i>Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.</p>
+        <div class="ver"><em id="hv">v</em><span>Windows 10 / 11</span></div>
+      </div>
+    </div>
+    <div class="main">
+      <ol class="steps" id="steps"></ol>
+      <div class="content" id="content" aria-live="polite"></div>
+      <div class="foot" id="foot"></div>
+    </div>
+  </div>
+</div>
+<script>
+// State provided by Vektor-Setup.exe before loading (window.SETUP); demo values in a browser
+const S = window.SETUP || { version: '2.23.0', installed: '2.22.6', newer: true, dir: 'C:\\Users\\you\\AppData\\Local\\Programs\\Vektor', desktop: true, theme: 'workshop', uninstall: false, demo: true };
+const $ = s => document.querySelector(s), win = $('#win');
+const host = window.chrome && window.chrome.webview;
+const send = m => { if (host) host.postMessage(m); else demo(m); };
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* languages: follows the Windows display language, English otherwise ({} = value inserted in order) */
+const L10N = {
+  fr: { 'Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.': 'Image → SVG pour les décalcos de Gran Turismo 7, 15 360 octets max par fichier.', 'Options': 'Options', 'Installation': 'Installation', 'Ready': 'Prêt', 'Choice': 'Choix', 'Update': 'Mise à jour', 'Repair': 'Réparation', 'Uninstall': 'Désinstallation', 'Done': 'Terminé',
+    'Install Vektor': 'Installer Vektor', 'Installed for your Windows account only, without administrator rights. Updates then happen from the app.': 'Installé pour ton compte Windows uniquement, sans droits administrateur. Les mises à jour se font ensuite depuis l’app.',
+    'Desktop shortcut': 'Raccourci sur le Bureau', 'in addition to the Start menu': 'en plus du menu Démarrer', 'Open Vektor when done': 'Ouvrir Vektor à la fin', 'Cancel': 'Annuler', 'Install': 'Installer',
+    'A new version is ready': 'Une nouvelle version est prête', 'Vektor is already installed': 'Vektor est déjà installé', 'Vektor {} is installed on this PC.': 'Vektor {} est installé sur ce PC.', 'Vektor is installed on this PC.': 'Vektor est installé sur ce PC.',
+    'Your settings and theme are kept.': 'Tes réglages et ton thème sont gardés.', 'You can open it, repair it if it no longer opens, or uninstall it.': 'Tu peux l’ouvrir, le réparer s’il ne s’ouvre plus, ou le désinstaller.',
+    'Update to {}': 'Mettre à jour vers {}', 'a few seconds': 'quelques secondes', 'Open Vektor': 'Ouvrir Vektor', 'nothing to update': 'rien à mettre à jour', 'Repair Vektor': 'Réparer',
+    'reinstalls the files and shortcuts, without touching your settings': 'réinstalle les fichiers et les raccourcis, sans toucher à tes réglages', 'Uninstall Vektor': 'Désinstaller Vektor', 'your exported SVGs are not touched': 'tes SVG exportés ne sont pas touchés',
+    'Close': 'Fermer', 'Uninstall Vektor?': 'Désinstaller Vektor ?', 'The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.': 'L’app, ses raccourcis et ses réglages sont retirés de ce PC. Tes SVG exportés restent là où tu les as enregistrés.',
+    'Back': 'Retour', 'Uninstall it': 'Désinstaller', '{} in progress': '{} en cours', 'It takes a few seconds, keep the window open.': 'Ça prend quelques secondes, laisse la fenêtre ouverte.', 'Preparing…': 'Préparation…',
+    'Note': 'À noter', 'Details: {}': 'Détails : {}', 'Vektor is uninstalled': 'Vektor est désinstallé', 'Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.': 'Tes SVG exportés restent là où tu les as enregistrés. Pour le remettre, relance Vektor-Setup.exe.',
+    'Finish': 'Terminer', 'Vektor is ready': 'Vektor est prêt', 'Vektor {} has been repaired.': 'Vektor {} a été réparé.', 'Vektor {} is up to date.': 'Vektor {} est à jour.', 'Vektor {} is installed.': 'Vektor {} est installé.',
+    'You will find it in the Start menu.': 'Tu le trouves dans le menu Démarrer.', 'You will find it in the Start menu and on the desktop.': 'Tu le trouves dans le menu Démarrer et sur le Bureau.', 'It will open when you click Finish.': 'Il s’ouvrira quand tu cliques sur Terminer.',
+    'To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.': 'Pour le réparer ou le désinstaller plus tard : Paramètres → Applications → Vektor, ou relance ce programme.',
+    'It did not work': 'Ça n’a pas marché', 'Close Vektor if it is open, then try again.': 'Ferme Vektor s’il est ouvert, puis réessaie.', 'Unknown error': 'Erreur inconnue', 'Try again': 'Réessayer', 'Error': 'Erreur',
+    'Closing Vektor if it is open…': 'Fermeture de Vektor s’il est ouvert…', 'Copying files…': 'Copie des fichiers…', 'Shortcuts…': 'Raccourcis…', 'Registering in “Installed apps”…': 'Enregistrement dans « Applications installées »…',
+    'Removing shortcuts…': 'Suppression des raccourcis…', 'Removing settings…': 'Suppression des réglages…', 'Removing files…': 'Suppression des fichiers…', 'Windows 10 / 11': 'Windows 10 / 11' },
+  es: { 'Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.': 'Imagen → SVG para calcomanías de Gran Turismo 7, 15.360 bytes máx. por archivo.', 'Options': 'Opciones', 'Installation': 'Instalación', 'Ready': 'Listo', 'Choice': 'Elección', 'Update': 'Actualización', 'Repair': 'Reparación', 'Uninstall': 'Desinstalación', 'Done': 'Terminado',
+    'Install Vektor': 'Instalar Vektor', 'Installed for your Windows account only, without administrator rights. Updates then happen from the app.': 'Se instala solo para tu cuenta de Windows, sin derechos de administrador. Las actualizaciones se hacen luego desde la app.',
+    'Desktop shortcut': 'Acceso directo en el escritorio', 'in addition to the Start menu': 'además del menú Inicio', 'Open Vektor when done': 'Abrir Vektor al terminar', 'Cancel': 'Cancelar', 'Install': 'Instalar',
+    'A new version is ready': 'Hay una nueva versión lista', 'Vektor is already installed': 'Vektor ya está instalado', 'Vektor {} is installed on this PC.': 'Vektor {} está instalado en este PC.', 'Vektor is installed on this PC.': 'Vektor está instalado en este PC.',
+    'Your settings and theme are kept.': 'Se conservan tus ajustes y tu tema.', 'You can open it, repair it if it no longer opens, or uninstall it.': 'Puedes abrirlo, repararlo si ya no se abre o desinstalarlo.',
+    'Update to {}': 'Actualizar a {}', 'a few seconds': 'unos segundos', 'Open Vektor': 'Abrir Vektor', 'nothing to update': 'nada que actualizar', 'Repair Vektor': 'Reparar',
+    'reinstalls the files and shortcuts, without touching your settings': 'reinstala los archivos y accesos directos sin tocar tus ajustes', 'Uninstall Vektor': 'Desinstalar Vektor', 'your exported SVGs are not touched': 'tus SVG exportados no se tocan',
+    'Close': 'Cerrar', 'Uninstall Vektor?': '¿Desinstalar Vektor?', 'The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.': 'La app, sus accesos directos y sus ajustes se eliminan de este PC. Tus SVG exportados se quedan donde los guardaste.',
+    'Back': 'Atrás', 'Uninstall it': 'Desinstalar', '{} in progress': '{} en curso', 'It takes a few seconds, keep the window open.': 'Tarda unos segundos, deja la ventana abierta.', 'Preparing…': 'Preparando…',
+    'Note': 'Nota', 'Details: {}': 'Detalles: {}', 'Vektor is uninstalled': 'Vektor está desinstalado', 'Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.': 'Tus SVG exportados se quedan donde los guardaste. Para volver a instalarlo, ejecuta de nuevo Vektor-Setup.exe.',
+    'Finish': 'Terminar', 'Vektor is ready': 'Vektor está listo', 'Vektor {} has been repaired.': 'Vektor {} se ha reparado.', 'Vektor {} is up to date.': 'Vektor {} está actualizado.', 'Vektor {} is installed.': 'Vektor {} está instalado.',
+    'You will find it in the Start menu.': 'Lo encontrarás en el menú Inicio.', 'You will find it in the Start menu and on the desktop.': 'Lo encontrarás en el menú Inicio y en el escritorio.', 'It will open when you click Finish.': 'Se abrirá cuando hagas clic en Terminar.',
+    'To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.': 'Para repararlo o desinstalarlo más tarde: Configuración → Aplicaciones → Vektor, o vuelve a ejecutar este programa.',
+    'It did not work': 'No ha funcionado', 'Close Vektor if it is open, then try again.': 'Cierra Vektor si está abierto y vuelve a intentarlo.', 'Unknown error': 'Error desconocido', 'Try again': 'Reintentar', 'Error': 'Error',
+    'Closing Vektor if it is open…': 'Cerrando Vektor si está abierto…', 'Copying files…': 'Copiando archivos…', 'Shortcuts…': 'Accesos directos…', 'Registering in “Installed apps”…': 'Registrando en «Aplicaciones instaladas»…',
+    'Removing shortcuts…': 'Eliminando accesos directos…', 'Removing settings…': 'Eliminando ajustes…', 'Removing files…': 'Eliminando archivos…' },
+  de: { 'Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.': 'Bild → SVG für Gran-Turismo-7-Aufkleber, max. 15.360 Bytes pro Datei.', 'Options': 'Optionen', 'Installation': 'Installation', 'Ready': 'Fertig', 'Choice': 'Auswahl', 'Update': 'Update', 'Repair': 'Reparatur', 'Uninstall': 'Deinstallation', 'Done': 'Erledigt',
+    'Install Vektor': 'Vektor installieren', 'Installed for your Windows account only, without administrator rights. Updates then happen from the app.': 'Wird nur für dein Windows-Konto installiert, ohne Administratorrechte. Updates erfolgen danach direkt in der App.',
+    'Desktop shortcut': 'Desktop-Verknüpfung', 'in addition to the Start menu': 'zusätzlich zum Startmenü', 'Open Vektor when done': 'Vektor danach öffnen', 'Cancel': 'Abbrechen', 'Install': 'Installieren',
+    'A new version is ready': 'Eine neue Version ist bereit', 'Vektor is already installed': 'Vektor ist bereits installiert', 'Vektor {} is installed on this PC.': 'Vektor {} ist auf diesem PC installiert.', 'Vektor is installed on this PC.': 'Vektor ist auf diesem PC installiert.',
+    'Your settings and theme are kept.': 'Deine Einstellungen und dein Design bleiben erhalten.', 'You can open it, repair it if it no longer opens, or uninstall it.': 'Du kannst es öffnen, reparieren, falls es nicht mehr startet, oder deinstallieren.',
+    'Update to {}': 'Auf {} aktualisieren', 'a few seconds': 'wenige Sekunden', 'Open Vektor': 'Vektor öffnen', 'nothing to update': 'nichts zu aktualisieren', 'Repair Vektor': 'Reparieren',
+    'reinstalls the files and shortcuts, without touching your settings': 'installiert Dateien und Verknüpfungen neu, ohne deine Einstellungen anzutasten', 'Uninstall Vektor': 'Vektor deinstallieren', 'your exported SVGs are not touched': 'deine exportierten SVGs bleiben unberührt',
+    'Close': 'Schließen', 'Uninstall Vektor?': 'Vektor deinstallieren?', 'The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.': 'Die App, ihre Verknüpfungen und Einstellungen werden von diesem PC entfernt. Deine exportierten SVGs bleiben, wo du sie gespeichert hast.',
+    'Back': 'Zurück', 'Uninstall it': 'Deinstallieren', '{} in progress': '{} läuft', 'It takes a few seconds, keep the window open.': 'Das dauert ein paar Sekunden, lass das Fenster offen.', 'Preparing…': 'Vorbereitung…',
+    'Note': 'Hinweis', 'Details: {}': 'Details: {}', 'Vektor is uninstalled': 'Vektor ist deinstalliert', 'Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.': 'Deine exportierten SVGs bleiben, wo du sie gespeichert hast. Zum Neuinstallieren Vektor-Setup.exe erneut starten.',
+    'Finish': 'Fertigstellen', 'Vektor is ready': 'Vektor ist bereit', 'Vektor {} has been repaired.': 'Vektor {} wurde repariert.', 'Vektor {} is up to date.': 'Vektor {} ist auf dem neuesten Stand.', 'Vektor {} is installed.': 'Vektor {} ist installiert.',
+    'You will find it in the Start menu.': 'Du findest es im Startmenü.', 'You will find it in the Start menu and on the desktop.': 'Du findest es im Startmenü und auf dem Desktop.', 'It will open when you click Finish.': 'Es öffnet sich, wenn du auf Fertigstellen klickst.',
+    'To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.': 'Zum späteren Reparieren oder Deinstallieren: Einstellungen → Apps → Vektor, oder dieses Programm erneut starten.',
+    'It did not work': 'Das hat nicht geklappt', 'Close Vektor if it is open, then try again.': 'Schließe Vektor, falls es geöffnet ist, und versuche es erneut.', 'Unknown error': 'Unbekannter Fehler', 'Try again': 'Erneut versuchen', 'Error': 'Fehler',
+    'Closing Vektor if it is open…': 'Vektor wird geschlossen, falls geöffnet…', 'Copying files…': 'Dateien werden kopiert…', 'Shortcuts…': 'Verknüpfungen…', 'Registering in “Installed apps”…': 'Eintrag in „Installierte Apps“…',
+    'Removing shortcuts…': 'Verknüpfungen werden entfernt…', 'Removing settings…': 'Einstellungen werden entfernt…', 'Removing files…': 'Dateien werden entfernt…' },
+  it: { 'Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.': 'Immagine → SVG per decalcomanie di Gran Turismo 7, max 15.360 byte per file.', 'Options': 'Opzioni', 'Installation': 'Installazione', 'Ready': 'Pronto', 'Choice': 'Scelta', 'Update': 'Aggiornamento', 'Repair': 'Riparazione', 'Uninstall': 'Disinstallazione', 'Done': 'Fatto',
+    'Install Vektor': 'Installa Vektor', 'Installed for your Windows account only, without administrator rights. Updates then happen from the app.': 'Installato solo per il tuo account Windows, senza diritti di amministratore. Gli aggiornamenti poi si fanno dall’app.',
+    'Desktop shortcut': 'Collegamento sul desktop', 'in addition to the Start menu': 'oltre al menu Start', 'Open Vektor when done': 'Apri Vektor alla fine', 'Cancel': 'Annulla', 'Install': 'Installa',
+    'A new version is ready': 'Una nuova versione è pronta', 'Vektor is already installed': 'Vektor è già installato', 'Vektor {} is installed on this PC.': 'Vektor {} è installato su questo PC.', 'Vektor is installed on this PC.': 'Vektor è installato su questo PC.',
+    'Your settings and theme are kept.': 'Le tue impostazioni e il tuo tema vengono mantenuti.', 'You can open it, repair it if it no longer opens, or uninstall it.': 'Puoi aprirlo, ripararlo se non si apre più, o disinstallarlo.',
+    'Update to {}': 'Aggiorna a {}', 'a few seconds': 'pochi secondi', 'Open Vektor': 'Apri Vektor', 'nothing to update': 'niente da aggiornare', 'Repair Vektor': 'Ripara',
+    'reinstalls the files and shortcuts, without touching your settings': 'reinstalla file e collegamenti senza toccare le tue impostazioni', 'Uninstall Vektor': 'Disinstalla Vektor', 'your exported SVGs are not touched': 'i tuoi SVG esportati non vengono toccati',
+    'Close': 'Chiudi', 'Uninstall Vektor?': 'Disinstallare Vektor?', 'The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.': 'L’app, i suoi collegamenti e le sue impostazioni vengono rimossi da questo PC. I tuoi SVG esportati restano dove li hai salvati.',
+    'Back': 'Indietro', 'Uninstall it': 'Disinstalla', '{} in progress': '{} in corso', 'It takes a few seconds, keep the window open.': 'Ci vogliono pochi secondi, lascia la finestra aperta.', 'Preparing…': 'Preparazione…',
+    'Note': 'Nota', 'Details: {}': 'Dettagli: {}', 'Vektor is uninstalled': 'Vektor è disinstallato', 'Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.': 'I tuoi SVG esportati restano dove li hai salvati. Per reinstallarlo, riavvia Vektor-Setup.exe.',
+    'Finish': 'Fine', 'Vektor is ready': 'Vektor è pronto', 'Vektor {} has been repaired.': 'Vektor {} è stato riparato.', 'Vektor {} is up to date.': 'Vektor {} è aggiornato.', 'Vektor {} is installed.': 'Vektor {} è installato.',
+    'You will find it in the Start menu.': 'Lo trovi nel menu Start.', 'You will find it in the Start menu and on the desktop.': 'Lo trovi nel menu Start e sul desktop.', 'It will open when you click Finish.': 'Si aprirà quando fai clic su Fine.',
+    'To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.': 'Per ripararlo o disinstallarlo più tardi: Impostazioni → App → Vektor, oppure riavvia questo programma.',
+    'It did not work': 'Non ha funzionato', 'Close Vektor if it is open, then try again.': 'Chiudi Vektor se è aperto, poi riprova.', 'Unknown error': 'Errore sconosciuto', 'Try again': 'Riprova', 'Error': 'Errore',
+    'Closing Vektor if it is open…': 'Chiusura di Vektor se è aperto…', 'Copying files…': 'Copia dei file…', 'Shortcuts…': 'Collegamenti…', 'Registering in “Installed apps”…': 'Registrazione in «App installate»…',
+    'Removing shortcuts…': 'Rimozione dei collegamenti…', 'Removing settings…': 'Rimozione delle impostazioni…', 'Removing files…': 'Rimozione dei file…' },
+  pt: { 'Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.': 'Imagem → SVG para decalques do Gran Turismo 7, máx. 15.360 bytes por arquivo.', 'Options': 'Opções', 'Installation': 'Instalação', 'Ready': 'Pronto', 'Choice': 'Escolha', 'Update': 'Atualização', 'Repair': 'Reparo', 'Uninstall': 'Desinstalação', 'Done': 'Concluído',
+    'Install Vektor': 'Instalar o Vektor', 'Installed for your Windows account only, without administrator rights. Updates then happen from the app.': 'Instalado só para sua conta do Windows, sem direitos de administrador. As atualizações depois são feitas pelo app.',
+    'Desktop shortcut': 'Atalho na área de trabalho', 'in addition to the Start menu': 'além do menu Iniciar', 'Open Vektor when done': 'Abrir o Vektor no final', 'Cancel': 'Cancelar', 'Install': 'Instalar',
+    'A new version is ready': 'Uma nova versão está pronta', 'Vektor is already installed': 'O Vektor já está instalado', 'Vektor {} is installed on this PC.': 'O Vektor {} está instalado neste PC.', 'Vektor is installed on this PC.': 'O Vektor está instalado neste PC.',
+    'Your settings and theme are kept.': 'Suas configurações e seu tema são mantidos.', 'You can open it, repair it if it no longer opens, or uninstall it.': 'Você pode abri-lo, repará-lo se não abrir mais, ou desinstalá-lo.',
+    'Update to {}': 'Atualizar para {}', 'a few seconds': 'alguns segundos', 'Open Vektor': 'Abrir o Vektor', 'nothing to update': 'nada para atualizar', 'Repair Vektor': 'Reparar',
+    'reinstalls the files and shortcuts, without touching your settings': 'reinstala os arquivos e atalhos sem mexer nas suas configurações', 'Uninstall Vektor': 'Desinstalar o Vektor', 'your exported SVGs are not touched': 'seus SVG exportados não são afetados',
+    'Close': 'Fechar', 'Uninstall Vektor?': 'Desinstalar o Vektor?', 'The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.': 'O app, seus atalhos e configurações são removidos deste PC. Seus SVG exportados ficam onde você os salvou.',
+    'Back': 'Voltar', 'Uninstall it': 'Desinstalar', '{} in progress': '{} em andamento', 'It takes a few seconds, keep the window open.': 'Leva alguns segundos, deixe a janela aberta.', 'Preparing…': 'Preparando…',
+    'Note': 'Observação', 'Details: {}': 'Detalhes: {}', 'Vektor is uninstalled': 'O Vektor foi desinstalado', 'Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.': 'Seus SVG exportados ficam onde você os salvou. Para reinstalar, execute o Vektor-Setup.exe novamente.',
+    'Finish': 'Concluir', 'Vektor is ready': 'O Vektor está pronto', 'Vektor {} has been repaired.': 'O Vektor {} foi reparado.', 'Vektor {} is up to date.': 'O Vektor {} está atualizado.', 'Vektor {} is installed.': 'O Vektor {} está instalado.',
+    'You will find it in the Start menu.': 'Você o encontra no menu Iniciar.', 'You will find it in the Start menu and on the desktop.': 'Você o encontra no menu Iniciar e na área de trabalho.', 'It will open when you click Finish.': 'Ele vai abrir quando você clicar em Concluir.',
+    'To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.': 'Para repará-lo ou desinstalá-lo depois: Configurações → Aplicativos → Vektor, ou execute este programa novamente.',
+    'It did not work': 'Não funcionou', 'Close Vektor if it is open, then try again.': 'Feche o Vektor se estiver aberto e tente de novo.', 'Unknown error': 'Erro desconhecido', 'Try again': 'Tentar de novo', 'Error': 'Erro',
+    'Closing Vektor if it is open…': 'Fechando o Vektor se estiver aberto…', 'Copying files…': 'Copiando arquivos…', 'Shortcuts…': 'Atalhos…', 'Registering in “Installed apps”…': 'Registrando em “Aplicativos instalados”…',
+    'Removing shortcuts…': 'Removendo atalhos…', 'Removing settings…': 'Removendo configurações…', 'Removing files…': 'Removendo arquivos…' },
+  ja: { 'Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.': '画像 → グランツーリスモ7のデカール用SVG（1ファイル最大15,360バイト）', 'Options': 'オプション', 'Installation': 'インストール', 'Ready': '完了', 'Choice': '選択', 'Update': 'アップデート', 'Repair': '修復', 'Uninstall': 'アンインストール', 'Done': '完了',
+    'Install Vektor': 'Vektorをインストール', 'Installed for your Windows account only, without administrator rights. Updates then happen from the app.': 'お使いのWindowsアカウントにのみ、管理者権限なしでインストールされます。以降のアップデートはアプリから行えます。',
+    'Desktop shortcut': 'デスクトップのショートカット', 'in addition to the Start menu': 'スタートメニューに加えて', 'Open Vektor when done': '完了後にVektorを開く', 'Cancel': 'キャンセル', 'Install': 'インストール',
+    'A new version is ready': '新しいバージョンがあります', 'Vektor is already installed': 'Vektorはインストール済みです', 'Vektor {} is installed on this PC.': 'このPCにはVektor {}がインストールされています。', 'Vektor is installed on this PC.': 'このPCにはVektorがインストールされています。',
+    'Your settings and theme are kept.': '設定とテーマはそのまま残ります。', 'You can open it, repair it if it no longer opens, or uninstall it.': '開く、起動しない場合は修復する、またはアンインストールできます。',
+    'Update to {}': '{}にアップデート', 'a few seconds': '数秒', 'Open Vektor': 'Vektorを開く', 'nothing to update': 'アップデートはありません', 'Repair Vektor': '修復',
+    'reinstalls the files and shortcuts, without touching your settings': '設定はそのままで、ファイルとショートカットを入れ直します', 'Uninstall Vektor': 'Vektorをアンインストール', 'your exported SVGs are not touched': '書き出したSVGはそのまま残ります',
+    'Close': '閉じる', 'Uninstall Vektor?': 'Vektorをアンインストールしますか？', 'The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.': 'アプリとショートカット、設定がこのPCから削除されます。書き出したSVGは保存した場所に残ります。',
+    'Back': '戻る', 'Uninstall it': 'アンインストール', '{} in progress': '{}中', 'It takes a few seconds, keep the window open.': '数秒かかります。ウィンドウは開いたままにしてください。', 'Preparing…': '準備中…',
+    'Note': '注意', 'Details: {}': '詳細: {}', 'Vektor is uninstalled': 'Vektorをアンインストールしました', 'Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.': '書き出したSVGは保存した場所に残ります。再インストールするにはVektor-Setup.exeをもう一度実行してください。',
+    'Finish': '完了', 'Vektor is ready': 'Vektorの準備ができました', 'Vektor {} has been repaired.': 'Vektor {}を修復しました。', 'Vektor {} is up to date.': 'Vektor {}は最新です。', 'Vektor {} is installed.': 'Vektor {}をインストールしました。',
+    'You will find it in the Start menu.': 'スタートメニューから起動できます。', 'You will find it in the Start menu and on the desktop.': 'スタートメニューとデスクトップから起動できます。', 'It will open when you click Finish.': '「完了」をクリックすると開きます。',
+    'To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.': '後で修復・アンインストールするには：設定 → アプリ → Vektor、またはこのプログラムをもう一度実行します。',
+    'It did not work': 'うまくいきませんでした', 'Close Vektor if it is open, then try again.': 'Vektorが開いていれば閉じてから、もう一度お試しください。', 'Unknown error': '不明なエラー', 'Try again': '再試行', 'Error': 'エラー',
+    'Closing Vektor if it is open…': '起動中のVektorを閉じています…', 'Copying files…': 'ファイルをコピーしています…', 'Shortcuts…': 'ショートカット…', 'Registering in “Installed apps”…': '「インストールされているアプリ」に登録しています…',
+    'Removing shortcuts…': 'ショートカットを削除しています…', 'Removing settings…': '設定を削除しています…', 'Removing files…': 'ファイルを削除しています…' },
+  zh: { 'Image → SVG for Gran Turismo 7 decals, 15,360 bytes max per file.': '图片 → 用于 GT7 贴花的 SVG，每个文件最多 15,360 字节。', 'Options': '选项', 'Installation': '安装', 'Ready': '就绪', 'Choice': '选择', 'Update': '更新', 'Repair': '修复', 'Uninstall': '卸载', 'Done': '完成',
+    'Install Vektor': '安装 Vektor', 'Installed for your Windows account only, without administrator rights. Updates then happen from the app.': '仅为你的 Windows 账户安装，无需管理员权限。之后可在应用内更新。',
+    'Desktop shortcut': '桌面快捷方式', 'in addition to the Start menu': '除开始菜单外', 'Open Vektor when done': '完成后打开 Vektor', 'Cancel': '取消', 'Install': '安装',
+    'A new version is ready': '新版本已就绪', 'Vektor is already installed': 'Vektor 已安装', 'Vektor {} is installed on this PC.': '此电脑已安装 Vektor {}。', 'Vektor is installed on this PC.': '此电脑已安装 Vektor。',
+    'Your settings and theme are kept.': '你的设置和主题会保留。', 'You can open it, repair it if it no longer opens, or uninstall it.': '你可以打开它；如果无法打开可以修复，或者卸载。',
+    'Update to {}': '更新到 {}', 'a few seconds': '几秒钟', 'Open Vektor': '打开 Vektor', 'nothing to update': '无需更新', 'Repair Vektor': '修复',
+    'reinstalls the files and shortcuts, without touching your settings': '重新安装文件和快捷方式，不改动你的设置', 'Uninstall Vektor': '卸载 Vektor', 'your exported SVGs are not touched': '已导出的 SVG 不受影响',
+    'Close': '关闭', 'Uninstall Vektor?': '要卸载 Vektor 吗？', 'The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.': '应用、快捷方式和设置将从此电脑移除。已导出的 SVG 会留在你保存的位置。',
+    'Back': '返回', 'Uninstall it': '卸载', '{} in progress': '正在{}', 'It takes a few seconds, keep the window open.': '需要几秒钟，请不要关闭窗口。', 'Preparing…': '正在准备…',
+    'Note': '提示', 'Details: {}': '详情：{}', 'Vektor is uninstalled': 'Vektor 已卸载', 'Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.': '已导出的 SVG 会留在你保存的位置。如需重新安装，请再次运行 Vektor-Setup.exe。',
+    'Finish': '完成', 'Vektor is ready': 'Vektor 已就绪', 'Vektor {} has been repaired.': 'Vektor {} 已修复。', 'Vektor {} is up to date.': 'Vektor {} 已是最新版本。', 'Vektor {} is installed.': 'Vektor {} 已安装。',
+    'You will find it in the Start menu.': '可在开始菜单中找到它。', 'You will find it in the Start menu and on the desktop.': '可在开始菜单和桌面上找到它。', 'It will open when you click Finish.': '点击“完成”后会打开。',
+    'To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.': '以后要修复或卸载：设置 → 应用 → Vektor，或再次运行此程序。',
+    'It did not work': '操作未成功', 'Close Vektor if it is open, then try again.': '如果 Vektor 已打开，请先关闭，然后重试。', 'Unknown error': '未知错误', 'Try again': '重试', 'Error': '错误',
+    'Closing Vektor if it is open…': '正在关闭已打开的 Vektor…', 'Copying files…': '正在复制文件…', 'Shortcuts…': '快捷方式…', 'Registering in “Installed apps”…': '正在登记到“已安装的应用”…',
+    'Removing shortcuts…': '正在删除快捷方式…', 'Removing settings…': '正在删除设置…', 'Removing files…': '正在删除文件…' }
+};
+const LANG = (() => { const l = (navigator.language || 'en').toLowerCase().slice(0, 2); return L10N[l] ? l : 'en'; })();
+document.documentElement.lang = LANG;
+// T('Text {}', a, b): translation with values inserted in order
+const T = (s, ...v) => { let t = (L10N[LANG] || {})[s]; if (t == null) t = s; let i = 0; return t.replace(/\{\}/g, () => v[i++]); };
+document.querySelectorAll('[data-i]').forEach(e => e.textContent = T(e.textContent));
+
+if (['workshop', 'grid', 'grid-blue', 'garage'].includes(S.theme)) win.dataset.t = S.theme;
+$('#hv').textContent = 'v' + S.version;
+const ICON = {
+  up: '<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  fix: '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>',
+  open: '<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  del: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  ok: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'};
+const btn = (t, cls, id) => `<button class="b ${cls || ''}" id="${id}"><span>${esc(t)}</span></button>`;
+let job = null;
+
+function steps(n, labels) { $('#steps').innerHTML = labels.map((l, i) => `<li class="${i < n ? 'ok' : i === n ? 'on' : ''}"><b><span>${i + 1}</span></b>${esc(T(l))}</li>`).join(''); }
+function view(html, foot, title) { $('#content').innerHTML = html; $('#foot').innerHTML = foot; document.title = title; }
+function focus(id) { const e = $(id); if (e) e.focus(); }
+
+function start() {
+  if (S.uninstall && S.installed) { S.uninstall = false; return confirmRemove(true); }
+  if (!S.installed) return install();
+  maintenance();
+}
+function install() {
+  steps(0, ['Options', 'Installation', 'Ready']);
+  view(`<h2>${T('Install Vektor')}</h2>
+    <p>${T('Installed for your Windows account only, without administrator rights. Updates then happen from the app.')}</p>
+    <div class="path"><span title="${esc(S.dir)}">${esc(S.dir)}</span></div>
+    <label class="opt"><div>${T('Desktop shortcut')}<small>${T('in addition to the Start menu')}</small></div><input type="checkbox" class="sw" id="oDesk" checked></label>
+    <label class="opt"><div>${T('Open Vektor when done')}</div><input type="checkbox" class="sw" id="oLaunch" checked></label>`,
+    `<div class="btns">${btn(T('Cancel'), '', 'xNo')}${btn(T('Install'), 'pri', 'xGo')}</div>`, T('Install Vektor'));
+  $('#xGo').onclick = () => run('install', { desk: $('#oDesk').checked, launch: $('#oLaunch').checked });
+  $('#xNo').onclick = () => send('close'); focus('#xGo');
+}
+function maintenance() {
+  const upd = S.newer, known = S.installed && S.installed !== '?';
+  steps(0, ['Choice', upd ? 'Update' : 'Repair', 'Ready']);
+  view(`<h2>${T(upd ? 'A new version is ready' : 'Vektor is already installed')}</h2>
+    <p>${known ? T('Vektor {} is installed on this PC.', esc(S.installed)) : T('Vektor is installed on this PC.')} ${T(upd ? 'Your settings and theme are kept.' : 'You can open it, repair it if it no longer opens, or uninstall it.')}</p>
+    <div class="choices">
+      ${upd ? `<button class="choice pri" data-a="update"><span class="ic">${ICON.up}</span><span><b>${T('Update to {}', esc(S.version))}</b><small>${known ? esc(S.installed) + ' → ' + esc(S.version) + ' · ' : ''}${T('a few seconds')}</small></span><span class="arr">→</span></button>` : ''}
+      ${upd ? '' : `<button class="choice pri" data-a="open"><span class="ic">${ICON.open}</span><span><b>${T('Open Vektor')}</b><small>${T('nothing to update')}</small></span><span class="arr">→</span></button>`}
+      <button class="choice" data-a="repair"><span class="ic">${ICON.fix}</span><span><b>${T('Repair Vektor')}</b><small>${T('reinstalls the files and shortcuts, without touching your settings')}</small></span><span class="arr">→</span></button>
+      <button class="choice danger" data-a="remove"><span class="ic">${ICON.del}</span><span><b>${T('Uninstall Vektor')}</b><small>${T('your exported SVGs are not touched')}</small></span><span class="arr">→</span></button>
+    </div>
+    <label class="opt" style="margin-top:12px"><div>${T('Desktop shortcut')}</div><input type="checkbox" class="sw" id="oDesk"${S.desktop ? ' checked' : ''}></label>`,
+    `<div class="btns">${btn(T('Close'), '', 'xNo')}</div>`, 'Vektor');
+  $('#content').querySelectorAll('.choice').forEach(b => b.onclick = () => {
+    const a = b.dataset.a, desk = $('#oDesk').checked;
+    if (a === 'remove') confirmRemove(false);
+    else if (a === 'open') send('launch');
+    else run(a, { desk, launch: false });
+  });
+  $('#xNo').onclick = () => send('close'); $('#content').querySelector('.choice').focus();
+}
+function confirmRemove(direct) {
+  steps(0, ['Choice', 'Uninstall', 'Done']);
+  view(`<h2>${T('Uninstall Vektor?')}</h2>
+    <p>${T('The app, its shortcuts and its settings are removed from this PC. Your exported SVGs stay where you saved them.')}</p>`,
+    `<div class="btns">${btn(T(direct ? 'Cancel' : 'Back'), '', 'xNo')}${btn(T('Uninstall it'), 'danger', 'xGo')}</div>`, T('Uninstall Vektor'));
+  $('#xNo').onclick = () => direct ? send('close') : start(); $('#xGo').onclick = () => run('remove', {}); focus('#xNo');
+}
+const LAB = { install: 'Installation', update: 'Update', repair: 'Repair', remove: 'Uninstall' };
+const COUNT = { install: 4, update: 4, repair: 4, remove: 4 };   // steps announced by the installer
+function run(kind, o) {
+  job = { kind, o, n: 0, t0: Date.now() };
+  steps(1, [kind === 'install' ? 'Options' : 'Choice', LAB[kind], kind === 'remove' ? 'Done' : 'Ready']);
+  view(`<h2>${T('{} in progress', T(LAB[kind]))}</h2><p>${T('It takes a few seconds, keep the window open.')}</p>
+    <div class="pct"><span id="pLab">${T('Preparing…')}</span><span id="pPct">0 %</span></div><div class="prog"><i id="pBar"></i></div>
+    <ul class="log" id="log"></ul>`, `<div class="btns">${btn(T('Cancel'), '', 'xNo')}</div>`, 'Vektor — ' + T(LAB[kind]));
+  $('#xNo').disabled = true;
+  send(kind === 'remove' ? 'uninstall' : (kind === 'install' ? 'install' : 'repair') + '|' + (o.desk ? 1 : 0) + '|' + (o.launch ? 1 : 0));
+}
+function progress(text) {
+  if (!job) return; job.n++; text = T(text);
+  const log = $('#log'); if (!log) return;
+  log.querySelectorAll('li.run').forEach(li => li.className = 'ok');
+  const li = document.createElement('li'); li.className = 'run'; li.textContent = text.replace(/…$/, ''); log.appendChild(li);
+  const p = Math.min(95, Math.round(job.n / (COUNT[job.kind] + 1) * 100));
+  $('#pBar').style.width = p + '%'; $('#pPct').textContent = p + ' %'; $('#pLab').textContent = text;
+}
+function finish(m) {
+  const j = job; if (!j) return;
+  const wait = Math.max(0, 700 - (Date.now() - j.t0));   // lets the bar show for at least a moment
+  const bar = $('#pBar'); if (bar) { bar.style.width = '100%'; $('#pPct').textContent = '100 %'; $('#log').querySelectorAll('li').forEach(li => li.className = 'ok'); }
+  setTimeout(() => { job = null; m.ok ? done(j, m) : failed(j, m); }, wait + 250);
+}
+function warnBox(m) {
+  return m.warnings && m.warnings.length ? `<div class="warn"><b>${T('Note')}</b><ul>${m.warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul><div class="hint">${T('Details: {}', esc(m.log || ''))}</div></div>` : '';
+}
+function done(j, m) {
+  if (j.kind === 'remove') {
+    steps(3, ['Choice', 'Uninstall', 'Done']);
+    view(`<div class="done"><span class="big mute">${ICON.ok}</span><div><h2>${T('Vektor is uninstalled')}</h2><p>${T('Your exported SVGs stay where you saved them. To get it back, run Vektor-Setup.exe again.')}</p></div></div>`,
+      `<div class="btns">${btn(T('Finish'), 'pri', 'xGo')}</div>`, T('Vektor is uninstalled'));
+    $('#xGo').onclick = () => send('close'); focus('#xGo'); return;
+  }
+  S.installed = S.version; S.newer = false; S.desktop = j.o.desk;
+  steps(3, [j.kind === 'install' ? 'Options' : 'Choice', LAB[j.kind], 'Ready']);
+  const what = j.kind === 'repair' ? 'Vektor {} has been repaired.' : j.kind === 'update' ? 'Vektor {} is up to date.' : 'Vektor {} is installed.';
+  view(`<div class="done"><span class="big">${ICON.ok}</span><div><h2>${T('Vektor is ready')}</h2>
+      <p>${T(what, esc(S.version))} ${T(j.o.desk ? 'You will find it in the Start menu and on the desktop.' : 'You will find it in the Start menu.')}${j.o.launch ? ' ' + T('It will open when you click Finish.') : ''}</p>
+      <p class="hint">${T('To repair or uninstall it later: Settings → Apps → Vektor, or run this program again.')}</p>${warnBox(m)}</div></div>`,
+    `<div class="btns">${j.o.launch ? '' : btn(T('Open Vektor'), '', 'xOpen')}${btn(T('Finish'), 'pri', 'xGo')}</div>`, T('Vektor is ready'));
+  $('#xGo').onclick = () => send(j.o.launch ? 'launch' : 'close'); if ($('#xOpen')) $('#xOpen').onclick = () => send('launch'); focus('#xGo');
+}
+function failed(j, m) {
+  steps(1, [j.kind === 'install' ? 'Options' : 'Choice', LAB[j.kind], j.kind === 'remove' ? 'Done' : 'Ready']);
+  view(`<div class="done"><span class="big mute">${ICON.x}</span><div><h2>${T('It did not work')}</h2>
+      <p>${T('Close Vektor if it is open, then try again.')}</p>
+      <div class="warn err"><b>${esc(m.error || T('Unknown error'))}</b><div class="hint">${T('Details: {}', esc(m.log || ''))}</div></div></div></div>`,
+    `<div class="btns">${btn(T('Close'), '', 'xNo')}${btn(T('Try again'), 'pri', 'xGo')}</div>`, 'Vektor — ' + T('Error'));
+  $('#xNo').onclick = () => send('close'); $('#xGo').onclick = () => run(j.kind, j.o); focus('#xGo');
+}
+// messages from Vektor-Setup.exe
+window.onHost = m => { if (m.t === 'log') progress(m.s); else if (m.t === 'done') finish(m); };
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !job) { const n = $('#xNo'); if (n && !n.disabled) n.click(); }
+  if (e.key === 'F5' || (e.ctrlKey && /^[rpfsu+\-=0]$/i.test(e.key))) e.preventDefault();
+});
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// demo in a browser (without Vektor-Setup.exe)
+function demo(m) {
+  const a = m.split('|')[0]; if (a === 'close' || a === 'launch') { location.reload(); return; }
+  const L = a === 'uninstall' ? ['Closing Vektor if it is open…', 'Removing shortcuts…', 'Removing settings…', 'Removing files…']
+    : ['Closing Vektor if it is open…', 'Copying files…', 'Shortcuts…', 'Registering in “Installed apps”…'];
+  L.forEach((s, i) => setTimeout(() => window.onHost({ t: 'log', s }), 300 + i * 350));
+  setTimeout(() => window.onHost({ t: 'done', ok: true, warnings: [], log: '' }), 300 + L.length * 350);
+}
+if (S.demo) {
+  const p = new URLSearchParams(location.search);
+  if (p.get('theme')) win.dataset.t = p.get('theme');
+  if (p.get('case') === 'new') S.installed = null; else if (p.get('case') === 'same') { S.installed = S.version; S.newer = false; }
+}
+start();
+</script>
+</body>
+</html>
